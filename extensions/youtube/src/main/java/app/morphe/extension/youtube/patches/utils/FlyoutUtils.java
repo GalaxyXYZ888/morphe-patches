@@ -8,6 +8,8 @@
 package app.morphe.extension.youtube.patches.utils;
 
 import static app.morphe.extension.shared.StringRef.str;
+import static app.morphe.extension.youtube.patches.utils.PlaylistPatch.QueueManager.OPEN_QUEUE;
+import static app.morphe.extension.youtube.videoplayer.SaveToWatchLaterButton.saveToWatchLaterResourceName;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -52,6 +54,7 @@ import app.morphe.extension.shared.patches.components.BufferAsciiStrings;
 import app.morphe.extension.shared.theme.ThemeUtils;
 import app.morphe.extension.shared.ui.Dim;
 import app.morphe.extension.youtube.patches.AddToQueuePatch;
+import app.morphe.extension.youtube.patches.SaveToWatchLaterPatch;
 import app.morphe.extension.youtube.patches.VideoInformation;
 import app.morphe.extension.youtube.settings.Settings;
 import app.morphe.extension.youtube.shared.EngagementPanel;
@@ -109,13 +112,16 @@ public final class FlyoutUtils {
             ResourceUtils.getIdentifier(ResourceType.ID, "list_item_secondary_container");
     private static final int ITEM_TEXT_ID =
             ResourceUtils.getIdentifier(ResourceType.ID, "list_item_text");
+    private static final Drawable queueButtonDrawable = Utils.getContext()
+            .getDrawable(OPEN_QUEUE.drawableId);
+    private static final Drawable saveToWatchLaterDrawable =
+            ResourceUtils.getDrawable(saveToWatchLaterResourceName);
 
     private static WeakReference<TextView> customItemTextRef = new WeakReference<>(null);
 
-    private static final List<Pair<String, Integer>> visibleFlyoutButtons = new ArrayList<>();
-
     private static String currentButtonName = "";
     private static int currentButtonIndex;
+    private static final List<Pair<String, Integer>> visibleFlyoutButtons = new ArrayList<>();
 
     private static WeakReference<View> senderViewRef = new WeakReference<>(null);
 
@@ -203,13 +209,6 @@ public final class FlyoutUtils {
         }
     }
 
-    public static void dismissBottomSheetFlyout() {
-        if (flyoutDialog != null) {
-            flyoutDialog.dismiss();
-            flyoutDialog = null;
-        }
-    }
-
     /**
      * Injection point.
      */
@@ -228,7 +227,12 @@ public final class FlyoutUtils {
         }
     }
 
-    public static void dismissPopupWindowFlyout() {
+    public static void dismissFlyout() {
+        if (flyoutDialog != null) {
+            flyoutDialog.dismiss();
+            flyoutDialog = null;
+        }
+
         if (flyoutPopupWindow != null) {
             flyoutPopupWindow.dismiss();
             flyoutPopupWindow = null;
@@ -236,20 +240,44 @@ public final class FlyoutUtils {
     }
 
     private static void addFlyoutElements(Object flyoutPanel) {
+        int currentInjectIndex = 0;
+
         // TODO: Add playlists compatibility to Morphe's queue.
-        if (!Settings.QUEUE_ADD_FLYOUT_MENU.get() ||
-                !flyoutPlaylistId.isEmpty() ||
-                flyoutVideoId.isEmpty()) {
-            return;
+        if (Settings.QUEUE_ADD_FLYOUT_MENU.get() &&
+                flyoutPlaylistId.isEmpty() &&
+                !flyoutVideoId.isEmpty()) {
+            currentInjectIndex = addFlyoutButton(
+                    flyoutPanel,
+                    queueButtonDrawable,
+                    str("morphe_queue_flyout_title"),
+                    v -> AddToQueuePatch.flyoutButtonClickLogic(
+                            AddToQueuePatch.queueButtonNames.get(0)
+                    ),
+                    currentInjectIndex
+            );
         }
 
-        final int currentInjectIndex = addFlyoutButton(
-                flyoutPanel,
-                AddToQueuePatch.queueButtonDrawable,
-                str("morphe_queue_flyout_title"),
-                v -> AddToQueuePatch.flyoutButtonClickLogic(AddToQueuePatch.queueButtonNames.get(0)),
-                0
-        );
+        if (PlayerType.getCurrent().isMaximizedOrFullscreen() &&
+                visibleFlyoutButtons.
+                stream().
+                noneMatch(
+                        pair
+                                ->
+                        pair.first.equals("ADD_TO_WATCH_LATER")
+                )) {
+            currentInjectIndex = addFlyoutButton(
+                    flyoutPanel,
+                    saveToWatchLaterDrawable,
+                    str("morphe_save_to_watch_later_flyout_title"),
+                    v -> {
+                        SaveToWatchLaterPatch.saveVideo(getFlyoutVideoId());
+
+                        dismissFlyout(); // Must dismiss after showing dialog.
+                    },
+                    currentInjectIndex
+            );
+        }
+
         if (currentInjectIndex > 0) {
             addDivider(flyoutPanel, currentInjectIndex);
         }
@@ -422,6 +450,12 @@ public final class FlyoutUtils {
         }
 
         currentButtonName = buttonEnum.name();
+        Logger.printDebug(() ->
+                "Current renderized flyout button {" +
+                        "Name:" + currentButtonName + "; " +
+                        "Index: " + currentButtonIndex +
+                "}"
+        );
         currentButtonIndex++;
 
         visibleFlyoutButtons.add(new Pair<>(currentButtonName, currentButtonIndex));

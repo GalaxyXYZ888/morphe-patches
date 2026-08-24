@@ -25,7 +25,7 @@ public final class SaveToWatchLaterPatch {
      */
     private static volatile SaveToWatchLaterRequest saveToWatchLaterRequest;
 
-    public static void saveVideo() {
+    public static void saveVideo(String videoId) {
         // Prevent a new request until the previous (if exists) is not done.
         if (saveToWatchLaterRequest != null && !saveToWatchLaterRequest.fetchIsDone()) {
             return;
@@ -34,7 +34,6 @@ public final class SaveToWatchLaterPatch {
             Utils.showToastShort(str("morphe_queue_manager_check_failed_auth"));
             return;
         }
-        String videoId = VideoInformation.getVideoId();
         if (TextUtils.isEmpty(videoId)) {
             Utils.showToastShort(str("morphe_queue_manager_check_failed_video_id"));
             return;

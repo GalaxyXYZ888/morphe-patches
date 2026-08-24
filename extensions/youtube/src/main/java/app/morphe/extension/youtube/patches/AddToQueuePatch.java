@@ -7,10 +7,7 @@
 
 package app.morphe.extension.youtube.patches;
 
-import static app.morphe.extension.youtube.patches.utils.PlaylistPatch.QueueManager.OPEN_QUEUE;
-
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 
 import androidx.annotation.Nullable;
 
@@ -29,8 +26,6 @@ public final class AddToQueuePatch {
             "QUEUE_PLAY_NEXT",
             "QUEUE_PLAY_LAST"
     );
-    public static final Drawable queueButtonDrawable = Utils.getContext()
-            .getDrawable(OPEN_QUEUE.drawableId);
 
     /**
      * Injection point.
@@ -116,8 +111,7 @@ public final class AddToQueuePatch {
                     Logger.printException(() -> "Could not open queue flyout, activity is not available");
                 }
 
-                FlyoutUtils.dismissBottomSheetFlyout(); // Must dismiss after showing dialog.
-                FlyoutUtils.dismissPopupWindowFlyout();
+                FlyoutUtils.dismissFlyout(); // Must dismiss after showing dialog.
                 return true;
             }
         } catch (Exception ex) {
