@@ -982,16 +982,17 @@ Batasan: Jika 'Kembalikan bilah tindakan video lama' dinonaktifkan, hamparan 'Vi
   <!-- layout.theme.themePatch -->
   <string name="morphe_theme_color_light_title">Latar belakang tema terang</string>
   <string name="morphe_theme_color_light_entry_2">Putih</string>
-  <string name="morphe_theme_color_light_entry_3">Material You (Putih)@string/morphe_theme_color_light_entry_3</string>
-  <string name="morphe_theme_color_light_entry_9">Light pink</string>
-  <string name="morphe_theme_color_light_entry_10">Light blue</string>
-  <string name="morphe_theme_color_light_entry_11">Light green</string>
-  <string name="morphe_theme_color_light_entry_12">Light yellow</string>
-  <string name="morphe_theme_color_light_entry_13">Light orange</string>
+  <string name="morphe_theme_color_light_entry_3">Material You (Putih)</string>
+  <string name="morphe_theme_color_light_entry_9">Pink muda</string>
+  <string name="morphe_theme_color_light_entry_10">Biru muda</string>
+  <string name="morphe_theme_color_light_entry_11">Hijau muda</string>
+  <string name="morphe_theme_color_light_entry_12">Kuning muda</string>
+  <string name="morphe_theme_color_light_entry_13">Oranye muda</string>
   <string name="morphe_theme_color_light_entry_14">Merah muda</string>
   <string name="morphe_theme_color_light_custom_title">Latar belakang terang kustom</string>
   <string name="morphe_theme_color_light_custom_summary">Atur warna latar belakang tema terang</string>
-  <string name="morphe_theme_color_change_foreground_title">Change foreground color</string>
+  <string name="morphe_theme_color_change_foreground_title">Ubah warna latar depan</string>
+  <string name="morphe_theme_color_change_foreground_summary">Gunakan warna tema untuk teks dan ikon</string>
   <string name="morphe_gradient_loading_screen_title">Aktifkan layar pemuatan gradien</string>
   <string name="morphe_gradient_loading_screen_summary">Menampilkan latar belakang gradien pada layar pemuatan daripada warna solid</string>
   <string name="morphe_splash_screen_animation_style_title">Gaya layar pembuka</string>

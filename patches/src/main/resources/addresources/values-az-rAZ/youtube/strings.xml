@@ -993,7 +993,7 @@ Məhdudiyyət: 'Köhnə video fəaliyyət cizgisini bərpa et' qapadılıbsa, 'D
   <string name="morphe_theme_color_light_custom_title">Fərdi işıqlı fon</string>
   <string name="morphe_theme_color_light_custom_summary">İşıqlı koloritin fon rəngini təyin et</string>
   <string name="morphe_theme_color_change_foreground_title">Ön plan rəngini dəyişdir</string>
-  <string name="morphe_theme_color_change_foreground_summary">Mətn və ikonlar üçün mövzu rəngindən istifadə edin</string>
+  <string name="morphe_theme_color_change_foreground_summary">Mətn və simvollar üçün kolorit rəngini istifadə et</string>
   <string name="morphe_gradient_loading_screen_title">Axarlı yükləmə ekranını aktivləşdir</string>
   <string name="morphe_gradient_loading_screen_summary">Yüklənilmə ekranında bütöv rəng əvəzinə axarlı fonu göstərir</string>
   <string name="morphe_splash_screen_animation_style_title">Sıçrama ekranı üslubu</string>
