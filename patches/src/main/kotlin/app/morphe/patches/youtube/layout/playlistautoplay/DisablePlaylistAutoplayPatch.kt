@@ -7,6 +7,7 @@
 
 package app.morphe.patches.youtube.layout.playlistautoplay
 
+import app.morphe.patcher.Fingerprint
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.all.misc.resources.resourceMappingPatch
@@ -16,20 +17,11 @@ import app.morphe.patches.youtube.misc.settings.PreferenceScreen
 import app.morphe.patches.youtube.misc.settings.settingsPatch
 import app.morphe.patches.youtube.shared.Constants.COMPATIBILITY_YOUTUBE
 import app.morphe.util.findFreeRegister
-import app.morphe.util.getMutableMethod
-import com.android.tools.smali.dexlib2.iface.Method
+import com.android.tools.smali.dexlib2.AccessFlags
 
 private const val EXTENSION_CLASS =
     "Lapp/morphe/extension/youtube/patches/DisablePlaylistAutoplayPatch;"
 
-/**
- * Video-ended navigation shares one dispatch object carrying an enum: an
- * AUTOPLAY value means "continue the active playlist/queue" and fires
- * unconditionally, while AUTONAV ("play a suggested video") is the one
- * already gated by the existing Settings toggle. Every class exposing a
- * matching navigate/has-next method pair is patched, since which one handles
- * the main watch flow isn't stable across builds.
- */
 @Suppress("unused")
 val disablePlaylistAutoplayPatch = bytecodePatch(
     name = "Disable playlist autoplay",
@@ -50,47 +42,32 @@ val disablePlaylistAutoplayPatch = bytecodePatch(
 
         val enumType = NavigationIntentEnumFingerprint.originalClassDef.type
 
-        // Resolve the dispatch object's own class from its 3-arg constructor.
-        var wrapperType: String? = null
-        classDefForEach { classDef ->
-            if (wrapperType != null) return@classDefForEach
-            for (method in classDef.methods) {
-                val params = method.parameterTypes
-                if (method.name == "<init>" && params.size == 3 && params.firstOrNull() == enumType) {
-                    wrapperType = classDef.type
-                    return@classDefForEach
+        val wrapperClassDef = Fingerprint(
+            accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
+            parameters = listOf(enumType, "L", "L"),
+        ).originalClassDef
+        val wrapperType = wrapperClassDef.type
+        val enumField = wrapperClassDef.fields.first { it.type == enumType }
+
+        Fingerprint(
+            returnType = "V",
+            parameters = listOf(wrapperType),
+            custom = { method, classDef ->
+                method.implementation != null && classDef.methods.any { sibling ->
+                    sibling.implementation != null &&
+                            sibling.returnType == "I" &&
+                            sibling.parameterTypes.singleOrNull() == wrapperType
                 }
-            }
-        }
-        val resolvedWrapperType = wrapperType ?: return@execute
+            },
+        ).matchAll().forEach { match ->
+            val method = match.method
+            val freeRegister = method.findFreeRegister(0)
 
-        // Patch every class with a matching navigate/has-next method pair
-        // rather than the one exact concrete class - harmless if unused.
-        val navigateMethods = mutableListOf<Method>()
-        classDefForEach { classDef ->
-            var vMethod: Method? = null
-            var iMethod: Method? = null
-            for (method in classDef.methods) {
-                if (method.implementation == null) continue
-                val params = method.parameterTypes
-                if (params.size == 1 && params.firstOrNull() == resolvedWrapperType) {
-                    if (method.returnType == "V") vMethod = method
-                    if (method.returnType == "I") iMethod = method
-                }
-            }
-            if (vMethod != null && iMethod != null) {
-                navigateMethods += vMethod
-            }
-        }
-
-        navigateMethods.forEach { method ->
-            val mutableMethod = method.getMutableMethod()
-            val freeRegister = mutableMethod.findFreeRegister(0)
-
-            mutableMethod.addInstructionsWithLabels(
+            method.addInstructionsWithLabels(
                 0,
                 """
-                    invoke-static { p1 }, $EXTENSION_CLASS->shouldSkipPlaylistAutoplay(Ljava/lang/Object;)Z
+                    iget-object v$freeRegister, p1, $enumField
+                    invoke-static { v$freeRegister }, $EXTENSION_CLASS->shouldSkipPlaylistAutoplay(Ljava/lang/Enum;)Z
                     move-result v$freeRegister
                     if-eqz v$freeRegister, :continue
                     return-void

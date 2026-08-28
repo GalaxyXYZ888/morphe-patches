@@ -1,3 +1,10 @@
+/*
+ * Copyright 2026 Morphe.
+ * https://github.com/MorpheApp/morphe-patches/pull/2628
+ *
+ * See the included NOTICE file for GPLv3 Section 7 terms that apply to this code.
+ */
+
 package app.morphe.patches.youtube.layout.playlistautoplay
 
 import app.morphe.patcher.Fingerprint
@@ -6,14 +13,6 @@ import app.morphe.patcher.string
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 
-/**
- * R8 keeps enum constant names for Enum#name()/#toString(), so this enum's
- * static constructor is findable by its constant names as string literals.
- * A lower-level token enum shares the same constant names in its own
- * `<clinit>`, so the string filter alone is ambiguous; requiring an extra
- * constructor parameter (this enum wraps a token value, the other doesn't)
- * selects it uniquely.
- */
 internal object NavigationIntentEnumFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.STATIC, AccessFlags.CONSTRUCTOR),
     filters = listOf(
