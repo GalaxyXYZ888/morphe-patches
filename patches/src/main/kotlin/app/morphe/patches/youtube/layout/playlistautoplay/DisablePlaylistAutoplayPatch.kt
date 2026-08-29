@@ -44,7 +44,7 @@ val disablePlaylistAutoplayPatch = bytecodePatch(
 
         val wrapperClassDef = Fingerprint(
             accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.CONSTRUCTOR),
-            parameters = listOf(enumType, "L", "L"),
+            parameters = listOf(enumType, "L", "L")
         ).originalClassDef
         val wrapperType = wrapperClassDef.type
         val enumField = wrapperClassDef.fields.first { it.type == enumType }
@@ -58,7 +58,7 @@ val disablePlaylistAutoplayPatch = bytecodePatch(
                             sibling.returnType == "I" &&
                             sibling.parameterTypes.singleOrNull() == wrapperType
                 }
-            },
+            }
         ).matchAll().forEach { match ->
             val method = match.method
             val freeRegister = method.findFreeRegister(0)
