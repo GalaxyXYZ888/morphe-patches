@@ -43,6 +43,10 @@ Second \"item\" text"</string>
     <!-- layout.disableScrollSpeedLimitPatch -->
     <string name="morphe_disable_scrolling_speed_limit_title">Disable scrolling speed limit</string>
 
+    <!-- video.framerate.disableVideoFrameRateMatchingPatch -->
+    <string name="morphe_disable_video_frame_rate_matching_title">Disable video frame rate matching</string>
+    <string name="morphe_disable_video_frame_rate_matching_summary">Prevents the video player from requesting a refresh rate that matches the video. Can fix the screen staying at a low refresh rate while watching videos on some devices</string>
+
     <!-- layout.disableLayoutUpdatesPatch -->
     <string name="morphe_disable_layout_updates_title">Disable layout updates</string>
     <string name="morphe_disable_layout_updates_summary">Prevents the server from updating the app layout</string>
